@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTS Exam Reviewer — For Wiku 💕</title>
+<style>
+  :root{
+    --pink:#ff6fa5;
+    --pink-dark:#e8558f;
+    --purple:#8b5fd6;
+    --green:#2ecc71;
+    --red:#ff5c5c;
+    --bg:#fdf3f8;
+    --card:#ffffff;
+    --text:#3a2e3a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(160deg,#fdf3f8,#f3ecff 60%,#fdf3f8);
+    color:var(--text);
+    padding-bottom:60px;
+  }
+  header{
+    background:linear-gradient(120deg,var(--pink),var(--purple));
+    color:white;
+    padding:28px 20px 22px;
+    text-align:center;
+    box-shadow:0 4px 14px rgba(0,0,0,0.15);
+  }
+  header h1{margin:0 0 6px;font-size:1.7rem;}
+  header p{margin:0;opacity:0.95;font-size:1rem;}
+  .tabs{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin:18px auto 0;
+    flex-wrap:wrap;
+    padding:0 12px;
+  }
+  .tab-btn{
+    padding:10px 22px;
+    border-radius:30px;
+    border:2px solid var(--pink);
+    background:white;
+    color:var(--pink-dark);
+    font-weight:600;
+    cursor:pointer;
+    font-size:0.95rem;
+    transition:0.2s;
+  }
+  .tab-btn.active{
+    background:var(--pink);
+    color:white;
+  }
+  .container{
+    max-width:760px;
+    margin:20px auto;
+    padding:0 16px;
+  }
+  .scorebar{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:white;
+    border-radius:14px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+    padding:12px 18px;
+    margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    font-weight:600;
+  }
+  .scorebar .score{color:var(--pink-dark);}
+  .progress-outer{
+    width:100%;
+    background:#f0e6f0;
+    border-radius:10px;
+    height:10px;
+    margin-top:8px;
+    overflow:hidden;
+  }
+  .progress-inner{
+    height:100%;
+    background:linear-gradient(90deg,var(--pink),var(--purple));
+    width:0%;
+    transition:width 0.3s;
+  }
+  .actions{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin:18px 0 26px;
+  }
+  .action-btn{
+    padding:11px 18px;
+    border:none;
+    border-radius:12px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:0.9rem;
+    color:white;
+    box-shadow:0 3px 8px rgba(0,0,0,0.15);
+    transition:0.15s;
+  }
+  .action-btn:active{transform:scale(0.96);}
+  .btn-retake{background:#5c9ee6;}
+  .btn-shuffle{background:#9b6fd6;}
+  .btn-generate{background:#ff8a5c;}
+  .question-card{
+    background:var(--card);
+    border-radius:16px;
+    padding:18px 20px;
+    margin-bottom:16px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.06);
+    border:1px solid #f3e3ee;
+  }
+  .q-number{
+    font-size:0.78rem;
+    font-weight:700;
+    color:var(--purple);
+    margin-bottom:4px;
+    letter-spacing:0.5px;
+  }
+  .q-text{
+    font-weight:600;
+    margin-bottom:12px;
+    font-size:1.02rem;
+    line-height:1.4;
+  }
+  .option{
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:11px 14px;
+    margin-bottom:8px;
+    border-radius:10px;
+    border:2px solid #ecdff0;
+    background:#fffafd;
+    cursor:pointer;
+    font-size:0.95rem;
+    transition:0.15s;
+    color:var(--text);
+  }
+  .option:hover{border-color:var(--pink);}
+  .option.correct{
+    background:#e7f9ee;
+    border-color:var(--green);
+    color:#1d7a3f;
+    font-weight:600;
+  }
+  .option.wrong{
+    background:#ffeaea;
+    border-color:var(--red);
+    color:#c0392b;
+    font-weight:600;
+  }
+  .option.disabled{cursor:default;}
+  .feedback{
+    margin-top:10px;
+    padding:10px 14px;
+    border-radius:10px;
+    font-size:0.92rem;
+    font-weight:600;
+    line-height:1.4;
+  }
+  .feedback.correct-msg{background:#e7f9ee;color:#1d7a3f;}
+  .feedback.wrong-msg{background:#fff0e9;color:#a8541f;}
+  .completion-banner{
+    background:linear-gradient(120deg,var(--pink),var(--purple));
+    color:white;
+    border-radius:18px;
+    padding:24px 20px;
+    text-align:center;
+    margin:20px 0;
+    box-shadow:0 6px 18px rgba(0,0,0,0.18);
+    display:none;
+  }
+  .completion-banner.show{display:block;}
+  .completion-banner h2{margin:0 0 8px;font-size:1.4rem;}
+  .completion-banner p{margin:0;font-size:1rem;opacity:0.95;}
+  .exam-section{display:none;}
+  .exam-section.active{display:block;}
+  footer{
+    text-align:center;
+    color:#9a8a97;
+    font-size:0.85rem;
+    margin-top:30px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💖 UTS Exam Reviewer 💖</h1>
+  <p>Understanding the Self — Made with love for Wiku</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab(1)">Exam 1 (50 items)</button>
+  <button class="tab-btn" onclick="switchTab(2)">Exam 2 (50 items)</button>
+  <button class="tab-btn" onclick="switchTab(3)">Scenario-Based (1–10)</button>
+</div>
+
+<div class="container">
+
+  <!-- EXAM 1 -->
+  <div id="exam1" class="exam-section active">
+    <div class="scorebar">
+      <div>Score: <span class="score" id="score1">0</span>/50</div>
+      <div>Answered: <span id="answered1">0</span>/50</div>
+      <div class="progress-outer"><div class="progress-inner" id="progress1"></div></div>
+    </div>
+
+    <div class="actions">
+      <button class="action-btn btn-retake" onclick="retakeExam(1)">🔄 Retake Exam</button>
+      <button class="action-btn btn-shuffle" onclick="shuffleExam(1)">🔀 Shuffle Exam</button>
+      <button class="action-btn btn-generate" onclick="generateNewExam(1)">✨ Generate New Exam</button>
+    </div>
+
+    <div class="completion-banner" id="banner1">
+      <h2 id="bannerTitle1">🎉 Great job, Wiku!</h2>
+      <p id="bannerText1"></p>
+    </div>
+
+    <div id="questions1"></div>
+  </div>
+
+  <!-- EXAM 2 -->
+  <div id="exam2" class="exam-section">
+    <div class="scorebar">
+      <div>Score: <span class="score" id="score2">0</span>/50</div>
+      <div>Answered: <span id="answered2">0</span>/50</div>
+      <div class="progress-outer"><div class="progress-inner" id="progress2"></div></div>
+    </div>
+
+    <div class="actions">
+      <button class="action-btn btn-retake" onclick="retakeExam(2)">🔄 Retake Exam</button>
+      <button class="action-btn btn-shuffle" onclick="shuffleExam(2)">🔀 Shuffle Exam</button>
+      <button class="action-btn btn-generate" onclick="generateNewExam(2)">✨ Generate New Exam</button>
+    </div>
+
+    <div class="completion-banner" id="banner2">
+      <h2 id="bannerTitle2">🎉 Great job, Wiku!</h2>
+      <p id="bannerText2"></p>
+    </div>
+
+    <div id="questions2"></div>
+  </div>
+
+  <!-- SCENARIO-BASED -->
+  <div id="exam3" class="exam-section">
+    <div class="scorebar">
+      <div>Score: <span class="score" id="score3">0</span>/10</div>
+      <div>Answered: <span id="answered3">0</span>/10</div>
+      <div class="progress-outer"><div class="progress-inner" id="progress3"></div></div>
+    </div>
+
+    <div class="actions">
+      <button class="action-btn btn-retake" onclick="retakeExam(3)">🔄 Retake Scenario</button>
+      <button class="action-btn btn-shuffle" onclick="shuffleExam(3)">🔀 Shuffle Scenario</button>
+      <button class="action-btn btn-generate" onclick="generateNewExam(3)">✨ Generate New Scenario</button>
+    </div>
+
+    <div class="completion-banner" id="banner3">
+      <h2 id="bannerTitle3">🎉 Great job, Wiku!</h2>
+      <p id="bannerText3"></p>
+    </div>
+
+    <div id="questions3"></div>
+  </div>
+
+</div>
+
+<footer>Good luck on your UTS exam, Wiku! You've got this. 💕</footer>
+
+<script>
+/* ================= QUESTION DATA ================= */
+const rawExam1 = [
+["According to Socrates, what is the most important task of a human being?",["Acquiring wealth","Knowing oneself","Gaining political power","Following tradition"],1],
+["Socrates believed that the unexamined life is:",["worth living","not worth living","the ideal life","impossible to live"],1],
+["For Socrates, the true self is identified with:",["the body","the soul or reason","one's possessions","social status"],1],
+["Plato divided the self into how many parts or elements?",["Two","Three","Four","Five"],1],
+["In Plato's tripartite soul, which part is associated with wisdom and should rule?",["Appetitive","Spirited","Rational","Physical"],2],
+["Plato's concept of the self is closely tied to his theory of:",["Forms","Evolution","Empiricism","Behaviorism"],0],
+["Aristotle believed the soul (psyche) is the ______ of the body.",["enemy","form or actuality","illusion","prison"],1],
+["According to Aristotle, humans achieve happiness (eudaimonia) through:",["pleasure alone","living virtuously according to reason","wealth accumulation","avoiding all activity"],1],
+["Aristotle classified the soul into rational and ______ parts.",["irrational","digital","political","economic"],0],
+["Thomas Aquinas combined Christian theology with the philosophy of:",["Plato","Aristotle","Socrates","Descartes"],1],
+["For Aquinas, the human person is a union of:",["mind and machine","soul and body","reason and emotion","self and society"],1],
+["According to Aquinas, true happiness is ultimately found in:",["material wealth","union with God","political power","sensory pleasure"],1],
+["Alfred Adler believed feelings of inferiority in childhood lead individuals to strive for:",["isolation","superiority or compensation","failure","conformity"],1],
+["According to Adler, what is required to overcome inferiority feelings in a healthy way?",["Courage","Wealth","Isolation","Aggression"],0],
+["Adler's term for an exaggerated attempt to overcome feelings of inferiority is called:",["Oedipus complex","superiority complex","collective unconscious","self-actualization"],1],
+["Maslow's hierarchy of needs is usually depicted as a:",["circle","pyramid","straight line","spiral"],1],
+["The highest level in Maslow's hierarchy of needs is:",["Safety needs","Esteem needs","Self-actualization","Physiological needs"],2],
+["Which of the following is an example of a physiological need in Maslow's hierarchy?",["Respect","Food and water","Friendship","Self-fulfillment"],1],
+["Carl Rogers distinguished between the 'real self' and the:",["false self","ideal self","shadow self","collective self"],1],
+["According to Rogers, psychological health results from congruence between:",["mind and body","real self and ideal self","past and future","self and society"],1],
+["Rogers emphasized that a person needs ______ to develop a healthy self-concept.",["unconditional positive regard","strict discipline","isolation","constant criticism"],0],
+["Erik Erikson proposed that personality develops through how many psychosocial stages?",["Five","Six","Eight","Ten"],2],
+["Erikson's stage during adolescence centers on the conflict of:",["trust vs. mistrust","identity vs. role confusion","intimacy vs. isolation","integrity vs. despair"],1],
+["The first stage in Erikson's theory, occurring in infancy, involves:",["Trust vs. mistrust","Autonomy vs. shame","Initiative vs. guilt","Industry vs. inferiority"],0],
+["Political orientation refers to a person's:",["taste in food","set of beliefs and values regarding governance and society","physical fitness","academic major"],1],
+["A person's political self is shaped mainly by:",["genetics alone","family, culture, education, and experiences","random chance","weather patterns"],1],
+["Citizenship, in the context of the political self, primarily refers to:",["owning property","one's membership and participation in a political community","speaking multiple languages","having a job"],1],
+["Which of the following best describes an active or engaged citizen?",["One who ignores current events","One who votes, participates, and stays informed","One who avoids civic duties","One who only cares about personal gain"],1],
+["Political self-identity can influence a person's:",["shoe size","voting behavior and civic participation","blood type","height"],1],
+["The concept of the 'political self' recognizes that individuals are shaped by their role as:",["consumers only","members of a state or society with rights and duties","athletes","tourists"],1],
+["Charles Horton Cooley developed the concept of the:",["id and ego","looking-glass self","collective unconscious","hierarchy of needs"],1],
+["According to the looking-glass self theory, our self-image is shaped by:",["our genetics alone","how we imagine others perceive us","random events","our diet"],1],
+["The looking-glass self involves imagining how we appear to others, imagining their judgment, and:",["ignoring their opinion","developing a self-feeling based on that judgment","changing our name","avoiding social contact"],1],
+["Erving Goffman's 'The Presentation of Self in Everyday Life' compares social interaction to:",["a scientific experiment","a theatrical performance","a mathematical equation","a legal trial"],1],
+["In Goffman's theory, the 'front stage' refers to:",["where people are alone and unobserved","where individuals perform for an audience following social norms","a literal stage in a theater","a private diary"],1],
+["Goffman's 'back stage' refers to areas where individuals:",["perform formally for an audience","can relax and drop their public persona","are judged most harshly","never exist"],1],
+["Rational Choice Theory assumes that individuals make decisions by:",["flipping a coin","weighing costs and benefits to maximize personal benefit","following others blindly","ignoring consequences"],1],
+["A key assumption of Rational Choice Theory is that people act as:",["irrational beings","self-interested, rational actors","purely emotional beings","random decision-makers"],1],
+["Rational Choice Theory is commonly applied in the field of:",["astronomy","economics and social sciences","botany","meteorology"],1],
+["A criticism of Rational Choice Theory is that it may overlook:",["mathematics","emotional and social factors in decision-making","government policy","physical laws"],1],
+["Loss aversion refers to the tendency for people to:",["prefer gains over avoiding losses","feel losses more strongly than equivalent gains","ignore both gains and losses","always take financial risks"],1],
+["Loss aversion is a concept studied primarily in:",["behavioral economics","astrophysics","linguistics","geology"],0],
+["Because of loss aversion, people tend to be more motivated to:",["take unnecessary risks","avoid losing something than to gain something of equal value","spend all their money","ignore financial decisions"],1],
+["Loss aversion was highlighted in the work of psychologists:",["Kahneman and Tversky","Freud and Jung","Skinner and Pavlov","Piaget and Vygotsky"],0],
+["The 'Paradox of Choice' suggests that having more options:",["always increases happiness","can lead to anxiety and decision paralysis","has no psychological effect","guarantees better decisions"],1],
+["Barry Schwartz argued that too many choices can lead to:",["increased satisfaction always","regret and dissatisfaction","faster decision-making","no emotional impact"],1],
+["One suggested way to cope with the paradox of choice is to:",["seek unlimited options","limit or simplify choices","avoid all decisions","always choose randomly"],1],
+["Zero risk bias refers to the preference for:",["reducing a small risk to zero rather than achieving a greater overall risk reduction","taking on more risk","ignoring all risks","increasing uncertainty"],0],
+["Zero risk bias can lead people to make decisions that are:",["always the most efficient","not necessarily the most rational or cost-effective","purely random","legally required"],1],
+["Zero risk bias is an example of a bias studied in the field of:",["behavioral economics and decision-making","organic chemistry","astronomy","linguistics"],0]
+];
+
+const rawExam2 = [
+["Socrates's famous statement 'Know thyself' emphasizes the importance of:",["self-examination","wealth accumulation","political ambition","physical strength"],0],
+["Socrates taught primarily through a method of:",["lecturing","questioning and dialogue (Socratic method)","written treatises","silent meditation"],1],
+["For Socrates, virtue is closely linked to:",["knowledge","beauty","luck","social class"],0],
+["Plato's 'appetitive' part of the soul is associated with:",["reason","desires and bodily needs","courage","spirituality"],1],
+["According to Plato, justice in the soul occurs when each part performs its:",["opposite function","proper function in harmony","function randomly","function without order"],1],
+["Plato's view of the self is dualistic, distinguishing between the body and the:",["shadow","soul","ego","persona"],1],
+["Aristotle rejected Plato's view of a separate soul and instead saw the soul as:",["fully independent of the body","inseparable from and the form of the body","nonexistent","purely material"],1],
+["For Aristotle, the highest human good or ultimate goal in life is:",["pleasure","eudaimonia (flourishing or happiness)","wealth","fame"],1],
+["Aristotle's concept of the 'golden mean' refers to:",["extreme behavior","moderation between two extremes","total avoidance of virtue","financial wealth"],1],
+["Aquinas argued that the soul is immortal because it is:",["purely material","a spiritual, non-material substance","identical to the body","an illusion"],1],
+["Aquinas's philosophy is often referred to as:",["Thomism","Platonism","Stoicism","Existentialism"],0],
+["According to Aquinas, human beings are unique because they possess both a body and a rational:",["machine","soul","network","instinct"],1],
+["Adler's psychology is often called:",["Individual Psychology","Behaviorism","Psychoanalysis","Humanistic Psychology"],0],
+["According to Adler, a person's 'style of life' is shaped mainly during:",["old age","early childhood","adolescence only","adulthood only"],1],
+["Adler believed that social interest (community feeling) is a sign of:",["weakness","psychological health","inferiority","failure"],1],
+["Which need must generally be satisfied first according to Maslow's hierarchy?",["Self-actualization","Physiological needs","Esteem needs","Belongingness"],1],
+["'Belongingness and love needs' in Maslow's hierarchy relate to:",["food and shelter","relationships, friendship, and connection","financial security","self-actualization"],1],
+["A self-actualized person, according to Maslow, is someone who:",["has met lower needs and realizes their full potential","is wealthy only","avoids all relationships","has no goals"],0],
+["Rogers's therapeutic approach is known as:",["person-centered therapy","psychoanalysis","behavior modification","shock therapy"],0],
+["A large gap between the real self and ideal self may result in:",["perfect happiness","incongruence and psychological distress","automatic success","no effect at all"],1],
+["Rogers believed that for growth, a person needs genuineness, acceptance, and:",["empathy","punishment","isolation","competition"],0],
+["Erikson's theory is known as the theory of:",["psychosexual development","psychosocial development","cognitive development","moral development"],1],
+["The final stage of Erikson's theory, in late adulthood, involves:",["identity vs. role confusion","integrity vs. despair","trust vs. mistrust","intimacy vs. isolation"],1],
+["Successfully resolving Erikson's stages leads to the development of:",["confusion","basic virtues or strengths","permanent crisis","isolation"],1],
+["A person's political orientation may be described along a spectrum from:",["rich to poor","liberal to conservative","tall to short","young to old"],1],
+["Political socialization is the process by which individuals:",["forget their beliefs","develop their political values and beliefs over time","avoid politics entirely","become wealthy"],1],
+["Citizenship carries with it both rights and:",["responsibilities","punishments only","privileges only","no obligations"],0],
+["A 'global citizen' is someone who:",["only cares about their own country","recognizes responsibility to the wider world community","has no nationality","avoids international issues"],1],
+["The nature of the political self suggests identity is influenced by one's role within:",["a family recipe","a political community or society","a sports team only","a private hobby"],1],
+["Civic participation, such as voting or joining advocacy groups, reflects a person's:",["economic status only","engagement with their political self","physical health","artistic ability"],1],
+["The 'looking-glass self' theory suggests that society functions as a type of:",["mirror","barrier","prison","machine"],0],
+["According to Cooley, self-perception is largely a social product formed through:",["isolation","interaction with others","biology alone","random chance"],1],
+["Which sociologist introduced the dramaturgical approach to social interaction?",["Cooley","Goffman","Adler","Maslow"],1],
+["In Goffman's theory, 'impression management' refers to:",["ignoring how others see us","controlling how others perceive us through behavior","avoiding all social contact","memorizing facts"],1],
+["According to Goffman, people use 'props' and 'settings' similar to:",["a courtroom","a stage performance","a laboratory","a classroom exam"],1],
+["The social self, as described by Cooley and Goffman, emphasizes that identity is:",["fixed at birth","shaped through social interaction","purely biological","unrelated to society"],1],
+["Under Rational Choice Theory, individuals are assumed to choose the option that:",["is chosen randomly","maximizes their expected personal benefit","benefits others only","is the most difficult"],1],
+["Rational Choice Theory is often used to explain behavior in:",["economics, sociology, and political science","astronomy only","fine arts only","meteorology"],0],
+["One limitation of Rational Choice Theory is that real people often act with:",["perfect rationality","bounded rationality and emotion, not always maximizing utility","no thought at all","complete information always"],1],
+["Rational Choice Theory assumes people have ______ preferences when making decisions.",["random","consistent and ordered","nonexistent","illegal"],1],
+["In loss aversion, losing $100 typically feels ______ than gaining $100 feels good.",["less painful","more painful","exactly equal","irrelevant"],1],
+["Loss aversion is part of a broader theory called:",["Prospect Theory","Game Theory","Social Contract Theory","String Theory"],0],
+["Because of loss aversion, investors may hold onto losing stocks too long in hopes of:",["avoiding realizing the loss","making a quick profit only","donating them","losing more money intentionally"],0],
+["Loss aversion helps explain why people are often ______ averse in decision-making.",["risk","reward","knowledge","time"],0],
+["According to the Paradox of Choice, an overwhelming number of options can lead to:",["greater confidence","decision paralysis or avoidance of choice altogether","instant satisfaction","no psychological effect"],1],
+["The Paradox of Choice suggests that after deciding among many options, people often feel:",["complete satisfaction","regret, wondering if another option was better","indifference","increased trust"],1],
+["A practical strategy to reduce the negative effects of the paradox of choice is to:",["set decision criteria and limit comparisons","consider every possible option endlessly","never make a decision","always choose the most expensive option"],0],
+["Zero risk bias explains why people may prefer eliminating a tiny risk completely over a larger overall reduction because:",["it feels safer to remove risk entirely, even if less efficient","it is always the cheaper option","it is legally required","it eliminates all future risk in every area"],0],
+["Zero risk bias can result in ______ allocation of resources.",["perfectly efficient","suboptimal or inefficient","unlimited","illegal"],1],
+["Zero risk bias is closely related to how people perceive:",["certainty and safety","musical preferences","literary style","color psychology"],0]
+];
+
+const rawScenarios = [
+["Anna spends hours everyday reflecting on her choices, values, and beliefs to try to live a meaningful life. This practice best reflects the idea of:",["Aristotle's golden mean","Socrates' 'know thyself' and the examined life","Zero risk bias","Rational Choice Theory"],1],
+["Mark feels a constant internal battle between his desire to eat junk food, his urge to defend his pride when insulted, and his decision to eat healthy for his long-term goals. This best illustrates:",["Erikson's stages","Plato's tripartite soul (reason, spirit, appetite)","Goffman's front stage","Loss aversion"],1],
+["Liza avoids being reckless but also avoids being a coward; she tries to act with just the right amount of courage in difficult situations. This reflects Aristotle's concept of:",["The golden mean","Eudaimonia alone","The rational soul alone","The tripartite soul"],0],
+["Even after all his earthly achievements, Peter still feels an emptiness that worldly success cannot fill, prompting him to turn to a deeper, spiritual life for fulfillment. This reflects Aquinas's belief that:",["True happiness is found in union with God","Happiness lies in the appetitive soul","The soul is not immortal","Reason should be ignored"],0],
+["A student who lacks stable food, shelter, and safety finds it very hard to focus on self-improvement or personal growth goals. Which level of Maslow's hierarchy is unmet, best explaining this lack of focus?",["Esteem needs","Physiological and safety needs","Belongingness needs","Self-actualization needs"],1],
+["Even though Tina has food, shelter, and safety, she feels unhappy and unmotivated because she has no close friends or sense of connection. According to Maslow, which need is unmet?",["Physiological needs","Belongingness and love needs","Self-actualization","Safety needs"],1],
+["Maria always feels she must be 'perfect' to be loved by her parents, and she struggles because her actual behavior often falls short of this image. According to Rogers, this represents:",["Congruence between real self and ideal self","Incongruence between real self and ideal self","A superiority complex","Self-actualization"],1],
+["A parent tells their child, 'I love you no matter what mistakes you make,' helping the child grow into a confident and secure adult. This illustrates Rogers's concept of:",["Superiority complex","Unconditional positive regard","Zero risk bias","The tripartite soul"],1],
+["John was often mocked for being short as a child. As an adult, he works extremely hard to become a top executive to prove his worth. Adler would describe this as:",["Self-actualization","Compensation for feelings of inferiority","Congruence","Political socialization"],1],
+["Instead of focusing only on personal success, Grace volunteers regularly and genuinely cares about her community's welfare. Adler would describe this as a sign of:",["An inferiority complex","Strong social interest and psychological health","Loss aversion","Incongruence"],1],
+["A baby who is consistently fed, comforted, and cared for grows up believing the world is a safe and reliable place. This reflects the successful resolution of Erikson's stage of:",["Trust vs. mistrust","Autonomy vs. shame","Initiative vs. guilt","Identity vs. role confusion"],0],
+["A teenager is exploring different career paths, friend groups, and belief systems while trying to figure out 'who am I?' This reflects Erikson's stage of:",["Trust vs. mistrust","Industry vs. inferiority","Identity vs. role confusion","Generativity vs. stagnation"],2],
+["Every election season, Rina researches candidates, attends community forums, and votes based on her own values. This behavior best reflects:",["Passive citizenship","Active political participation and civic engagement","Loss aversion","The looking-glass self"],1],
+["Miguel believes that as a global citizen, he has a responsibility to care about issues beyond his own country, like climate change and human rights. This reflects an expanded sense of:",["Personal wealth","Political self and global citizenship","Zero risk bias","The looking-glass self"],1],
+["After hearing several classmates compliment her presentation, Sam starts to see herself as a confident public speaker, even though she felt nervous beforehand. This best illustrates:",["Erikson's identity crisis","The looking-glass self","Zero risk bias","Rational Choice Theory"],1],
+["At work, Carlo is calm, polished, and professional in front of his boss and clients, but at home with close friends he jokes loudly and drops his 'polished' persona. This illustrates Goffman's concept of:",["Front stage and back stage behavior","The looking-glass self","A superiority complex","Loss aversion"],0],
+["Before buying a laptop, Dave compares prices, specs, and reviews of several brands to choose the one that gives him the most value for his money. This is an example of:",["Zero risk bias","Rational Choice Theory","Loss aversion","The paradox of choice"],1],
+["Even though a stock has been losing value for months, Angela refuses to sell it because 'selling would make the loss real.' This behavior illustrates:",["Loss aversion","Rational Choice Theory","Zero risk bias","Self-actualization"],0],
+["Faced with 40 different flavors of ice cream, Ben spends 20 minutes unable to decide and leaves the store frustrated without buying anything. This illustrates:",["The paradox of choice","Loss aversion","Zero risk bias","Rational Choice Theory"],0],
+["A company spends a huge budget to completely eliminate a tiny, rare safety risk, while ignoring a much larger risk that could have been reduced more efficiently with the same budget. This illustrates:",["Zero risk bias","Rational Choice Theory","The paradox of choice","Loss aversion"],0]
+];
+
+function buildQuestions(raw){
+  return raw.map(r=>({q:r[0],o:r[1].slice(),c:r[2]}));
+}
+
+const scenarioPool = buildQuestions(rawScenarios);
+
+function sampleScenarios(n){
+  return shuffleArray(scenarioPool).slice(0,n).map(it=>shuffleQuestionOptions(it));
+}
+
+const originalData = {1: buildQuestions(rawExam1), 2: buildQuestions(rawExam2), 3: null};
+let currentData = {1: buildQuestions(rawExam1), 2: buildQuestions(rawExam2), 3: null};
+let answers = {1: Array(50).fill(null), 2: Array(50).fill(null), 3: Array(10).fill(null)};
+
+/* ================= MOTIVATION MESSAGES ================= */
+const correctMsgs = [
+  "Yes Wiku! 🎉 That's correct — you're amazing!",
+  "Correct! 💖 Wiku, you're so smart!",
+  "Nailed it! 🌟 Keep going, love!",
+  "That's right! 😍 Proud of you, Wiku!",
+  "Perfect answer! 💕 You've got this, baby!",
+  "Correct! 🥳 You're doing great, Wiku!",
+  "Yes! 💫 Your hard work is paying off!",
+  "Correct answer! 🌸 I'm so proud of you!"
+];
+const wrongMsgs = [
+  "Oops, not quite. 💗 But don't worry Wiku, you're doing great — here's the correct answer.",
+  "That's okay, love! 🌷 Mistakes help us learn. The correct answer is shown below.",
+  "Almost! 💪 Don't give up, Wiku, you're getting there!",
+  "No worries baby 🌸 review the correct answer and you'll get the next one!",
+  "It's alright, Wiku! 💫 Keep trying, I believe in you!",
+  "So close! 🌼 Take a breath, you're doing better than you think!",
+  "That's not it, but it's okay 💕 — every mistake is progress, Wiku!"
+];
+
+function randomFrom(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+/* ================= RENDER ================= */
+function render(examNum){
+  const container = document.getElementById('questions'+examNum);
+  container.innerHTML = '';
+  currentData[examNum].forEach((item,idx)=>{
+    const card = document.createElement('div');
+    card.className='question-card';
+    const chosen = answers[examNum][idx];
+
+    let optionsHtml = '';
+    item.o.forEach((opt,oIdx)=>{
+      let cls='option';
+      if(chosen!==null){
+        cls+=' disabled';
+        if(oIdx===item.c) cls+=' correct';
+        else if(oIdx===chosen) cls+=' wrong';
+      }
+      optionsHtml += `<div class="${cls}" onclick="selectAnswer(${examNum},${idx},${oIdx})">${String.fromCharCode(65+oIdx)}. ${opt}</div>`;
+    });
+
+    let feedbackHtml='';
+    if(chosen!==null){
+      if(chosen===item.c){
+        feedbackHtml = `<div class="feedback correct-msg">${randomFrom(correctMsgs)}</div>`;
+      } else {
+        feedbackHtml = `<div class="feedback wrong-msg">${randomFrom(wrongMsgs)}<br>✅ Correct answer: ${item.o[item.c]}</div>`;
+      }
+    }
+
+    card.innerHTML = `<div class="q-number">QUESTION ${idx+1} OF ${currentData[examNum].length}</div>
+      <div class="q-text">${item.q}</div>
+      ${optionsHtml}
+      ${feedbackHtml}`;
+    container.appendChild(card);
+  });
+  updateScore(examNum);
+}
+
+function selectAnswer(examNum, qIdx, optIdx){
+  if(answers[examNum][qIdx]!==null) return;
+  answers[examNum][qIdx] = optIdx;
+  render(examNum);
+  // scroll feedback into gentle view
+}
+
+function updateScore(examNum){
+  const ans = answers[examNum];
+  const data = currentData[examNum];
+  const total = data.length;
+  let score=0, answeredCount=0;
+  ans.forEach((a,i)=>{
+    if(a!==null){
+      answeredCount++;
+      if(a===data[i].c) score++;
+    }
+  });
+  document.getElementById('score'+examNum).textContent = score;
+  document.getElementById('answered'+examNum).textContent = answeredCount;
+  document.getElementById('progress'+examNum).style.width = (answeredCount/total*100)+'%';
+
+  const banner = document.getElementById('banner'+examNum);
+  if(answeredCount===total){
+    const pct = Math.round(score/total*100);
+    let msg='';
+    if(pct>=90) msg = `You scored ${score}/${total} (${pct}%)! Absolutely brilliant, Wiku — you're a genius! 💖🌟`;
+    else if(pct>=75) msg = `You scored ${score}/${total} (${pct}%)! Great job, Wiku, you really know your stuff! 💕`;
+    else if(pct>=50) msg = `You scored ${score}/${total} (${pct}%)! Good effort, love — a little more review and you'll ace it! 🌸`;
+    else msg = `You scored ${score}/${total} (${pct}%)! Don't be discouraged, Wiku — every attempt makes you stronger. I believe in you! 💪💗`;
+    document.getElementById('bannerText'+examNum).textContent = msg;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+/* ================= SHUFFLE HELPERS ================= */
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function shuffleQuestionOptions(item){
+  const pairs = item.o.map((opt,i)=>({opt, isCorrect:i===item.c}));
+  const shuffled = shuffleArray(pairs);
+  const newOptions = shuffled.map(p=>p.opt);
+  const newCorrect = shuffled.findIndex(p=>p.isCorrect);
+  return {q:item.q, o:newOptions, c:newCorrect};
+}
+
+/* ================= BUTTON ACTIONS ================= */
+function retakeExam(examNum){
+  currentData[examNum] = originalData[examNum].map(it=>({q:it.q,o:it.o.slice(),c:it.c}));
+  answers[examNum] = Array(originalData[examNum].length).fill(null);
+  render(examNum);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function shuffleExam(examNum){
+  currentData[examNum] = shuffleArray(originalData[examNum]).map(it=>({q:it.q,o:it.o.slice(),c:it.c}));
+  answers[examNum] = Array(originalData[examNum].length).fill(null);
+  render(examNum);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function generateNewExam(examNum){
+  if(examNum===3){
+    originalData[3] = sampleScenarios(10);
+    currentData[3] = originalData[3].map(it=>({q:it.q,o:it.o.slice(),c:it.c}));
+    answers[3] = Array(10).fill(null);
+    render(3);
+    window.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+  const shuffledQuestions = shuffleArray(originalData[examNum]);
+  currentData[examNum] = shuffledQuestions.map(it=>shuffleQuestionOptions(it));
+  answers[examNum] = Array(50).fill(null);
+  render(examNum);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ================= TABS ================= */
+function switchTab(num){
+  document.querySelectorAll('.tab-btn').forEach((btn,i)=>{
+    btn.classList.toggle('active', i===num-1);
+  });
+  document.getElementById('exam1').classList.toggle('active', num===1);
+  document.getElementById('exam2').classList.toggle('active', num===2);
+  document.getElementById('exam3').classList.toggle('active', num===3);
+}
+
+/* ================= INIT ================= */
+originalData[3] = sampleScenarios(10);
+currentData[3] = originalData[3].map(it=>({q:it.q,o:it.o.slice(),c:it.c}));
+render(1);
+render(2);
+render(3);
+</script>
+</body>
+</html>
